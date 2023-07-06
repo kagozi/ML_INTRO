@@ -4,13 +4,14 @@ import random
 import numpy
 import matplotlib.pyplot as plt
 import joblib
-
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 from outlier_cleaner import outlierCleaner
 
 
 ### load up some practice data with outliers in it
-ages = joblib.load( open("./outliers/practice_outliers_ages.pkl", "rb") )
-net_worths = joblib.load( open("./outliers/practice_outliers_net_worths.pkl", "rb") )
+ages = joblib.load( open("practice_outliers_ages.pkl", "rb") )
+net_worths = joblib.load( open("practice_outliers_net_worths.pkl", "rb") )
 
 
 
@@ -26,10 +27,10 @@ ages_train, ages_test, net_worths_train, net_worths_test = train_test_split(ages
 ### fill in a regression here!  Name the regression object reg so that
 ### the plotting code below works, and you can see what your regression looks like
 
-
-
-
-
+reg = LinearRegression()
+reg.fit(ages_train, net_worths_train)
+# print("Coefficient: " , reg.coef_)
+# print("Slope" , reg.intercept_)
 
 
 
@@ -48,6 +49,11 @@ cleaned_data = []
 try:
     predictions = reg.predict(ages_train)
     cleaned_data = outlierCleaner( predictions, ages_train, net_worths_train )
+    # Assuming you have the predicted values (y_pred) and actual target values (y_test)
+    mse = mean_squared_error(predictions, net_worths_train)
+    r2 = r2_score(predictions,net_worths_train)
+    print("MSE " , mse)
+    print("rSquared" , r2)
 except NameError:
     print("Your regression object doesn't exist, or isn't name reg")
     print("Can't make predictions to use in identifying outliers")
