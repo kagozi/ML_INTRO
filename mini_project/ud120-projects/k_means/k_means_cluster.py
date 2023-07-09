@@ -10,6 +10,7 @@ import numpy
 import matplotlib.pyplot as plt
 import sys
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
 sys.path.append(os.path.abspath("../tools/"))
 from feature_format import featureFormat, targetFeatureSplit
 
@@ -44,9 +45,11 @@ data_dict.pop("TOTAL", 0)
 ### can be any key in the person-level dictionary (salary, director_fees, etc.) 
 feature_1 = "salary"
 feature_2 = "exercised_stock_options"
-feature_3 = "total_payments"
+# feature_3 = "total_payments"
 poi  = "poi"
-features_list = [poi, feature_1, feature_2, feature_3]
+features_list = [poi, feature_1, feature_2]
+# features_list = [poi, feature_1, feature_2, feature_3]
+
 data = featureFormat(data_dict, features_list )
 poi, finance_features = targetFeatureSplit( data )
 
@@ -55,8 +58,12 @@ poi, finance_features = targetFeatureSplit( data )
 ### you'll want to change this line to 
 ### for f1, f2, _ in finance_features:
 ### (as it's currently written, the line below assumes 2 features)
-for f1, f2, f3 in finance_features:
-    plt.scatter( f1, f2, f3 )
+### Feature Scaling ###
+scaler = MinMaxScaler()
+finance_features = scaler.fit_transform(finance_features)
+
+for f1, f2 in finance_features:
+    plt.scatter( f1, f2)
 plt.show()
 
 ### cluster here; create predictions of the cluster labels
@@ -104,7 +111,15 @@ for person, features in data_dict.items():
 # Print the maximum and minimum values
 print("Maximum salaries:", max_salaries)
 print("Minimum salaries:", min_salaries)
+### Calculate rescaled values ###
+salary = 200000.0
+exercised_stock_options = 1000000.0
 
+rescaled_salary = scaler.transform([[salary, 0]])[0][0]
+rescaled_exercised_stock_options = scaler.transform([[0, exercised_stock_options]])[0][1]
+
+print("Rescaled Salary:", rescaled_salary)
+print("Rescaled Exercised Stock Options:", rescaled_exercised_stock_options)
 
 ## rename the "name" parameter when you change the number of features
 ## so that the figure gets saved to a different file
