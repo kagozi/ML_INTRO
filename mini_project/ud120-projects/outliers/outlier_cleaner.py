@@ -18,5 +18,5 @@ def outlierCleaner(predictions, ages, net_worths):
     for age, net_worth, error in zip(ages, net_worths, errors):
         if error <= threshold:
             cleaned_data.append((age, net_worth, error))
-
+    print(cleaned_data)
     return cleaned_data

@@ -29,8 +29,8 @@ ages_train, ages_test, net_worths_train, net_worths_test = train_test_split(ages
 
 reg = LinearRegression()
 reg.fit(ages_train, net_worths_train)
-# print("Coefficient: " , reg.coef_)
-# print("Slope" , reg.intercept_)
+print("Coefficient: " , reg.coef_)
+print("Slope" , reg.intercept_)
 
 
 
