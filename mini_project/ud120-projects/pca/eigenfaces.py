@@ -29,6 +29,7 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.decomposition import PCA
 from sklearn.svm import SVC
+from sklearn.metrics import f1_score
 
 # Display progress logs on stdout
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
@@ -96,6 +97,8 @@ print("Best estimator found by grid search:")
 print(clf.best_estimator_)
 
 
+
+
 ###############################################################################
 # Quantitative evaluation of the model quality on the test set
 
@@ -106,6 +109,49 @@ print("done in %0.3fs" % (time() - t0))
 
 print(classification_report(y_test, y_pred, target_names=target_names))
 print(confusion_matrix(y_test, y_pred, labels=range(n_classes)))
+
+# After performing PCA, access the explained variance ratio
+explained_variance = pca.explained_variance_ratio_
+
+# Print the explained variance for the first and second principal components
+print("Explained variance for the first principal component:", explained_variance[0])
+print("Explained variance for the second principal component:", explained_variance[1])
+
+
+### F1 Score for different n_components
+# List of different values of n_components
+n_components_values = [10, 15, 25, 50, 100, 250]
+
+# Create an empty list to store F1 scores for each n_components value
+f1_scores = []
+
+for n_components in n_components_values:
+    # Perform PCA with the current n_components value
+    pca = PCA(n_components=n_components, whiten=True)
+    X_train_pca = pca.fit_transform(X_train)
+    X_test_pca = pca.transform(X_test)
+
+    # Fit the classifier to the training set
+    clf = GridSearchCV(SVC(kernel='rbf', class_weight='balanced'), param_grid)
+    clf = clf.fit(X_train_pca, y_train)
+
+    # Predict the labels on the test set
+    y_pred = clf.predict(X_test_pca)
+
+    # Calculate the F1 score for the "Ariel Sharon" class
+    f1_score_ariel_sharon = f1_score(y_test, y_pred, average=None)[target_names.tolist().index("Ariel Sharon")]
+    f1_scores.append(f1_score_ariel_sharon)
+
+    print(f"F1 score for Ariel Sharon with {n_components} PCs:", f1_score_ariel_sharon)
+
+# Plot the F1 scores for different values of n_components
+pl.figure()
+pl.plot(n_components_values, f1_scores, marker='o')
+pl.xlabel("Number of Principal Components")
+pl.ylabel("F1 Score for Ariel Sharon")
+pl.title("F1 Score vs Number of Principal Components")
+pl.show()
+
 
 
 ###############################################################################
